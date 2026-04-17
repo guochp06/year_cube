@@ -22,13 +22,17 @@ jobs:
       - name: Sync Capacitor iOS
         run: cd year_cube && npx cap sync ios
 
+      - name: Install CocoaPods dependencies
+        run: cd year_cube/ios/App && pod install
+
       - name: Build iOS (Simulator)
         run: |
           cd year_cube/ios/App
           xcodebuild build \
             -workspace App.xcworkspace \
             -scheme App \
-            -destination 'platform=iOS Simulator,name=iPhone 16'
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,arch=arm64'
 
       - name: Archive iOS App
         run: |
