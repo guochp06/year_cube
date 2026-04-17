@@ -1,9 +1,10 @@
 # Dependencies
 node_modules/
+year_cube/node_modules/
 
 # Build outputs
-android/app/build/
-android/build/
+year_cube/android/app/build/
+year_cube/android/build/
 
 # Local env files
 .env
@@ -18,5 +19,5 @@ android/build/
 Thumbs.db
 
 # Keystore (DO NOT commit signing keys!)
-*.keystore
-*.jks
+year_cube/*.keystore
+year_cube/*.jks
