@@ -5,6 +5,8 @@
   "scripts": {
     "sync:android": "cap sync android",
     "build:android": "cd android && ./gradlew assembleDebug",
+    "sync:ios": "cap sync ios",
+    "open:ios": "cap open ios",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +16,7 @@
   "dependencies": {
     "@capacitor/android": "^6.2.0",
     "@capacitor/cli": "^6.2.0",
-    "@capacitor/core": "^6.2.0"
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.1"
   }
 }

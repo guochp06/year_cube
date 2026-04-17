@@ -9,7 +9,7 @@
 
 ## 技术方案
 - 前端：纯 HTML + CSS + JavaScript
-- 打包：[Capacitor](https://capacitorjs.com) 封装成 Android APK
+- 打包：[Capacitor](https://capacitorjs.com) 封装成 Android APK / iOS App
 
 ## 目录结构
 ```
@@ -17,12 +17,13 @@ year_cube/
 ├── www/
 │   └── index.html          # 应用页面
 ├── android/                # Android 原生工程
+├── ios/                    # iOS 原生工程
 ├── assets/
 │   └── icon-512.png        # 应用商店图标
 ├── .github/workflows/      # GitHub Actions 自动构建
 ├── capacitor.config.json   # Capacitor 配置
 ├── generate_icons.py       # 图标生成脚本
-├── generate_keystore.sh    # 签名证书生成脚本
+├── generate_keystore.sh    # Android 签名证书生成脚本
 └── package.json
 ```
 
@@ -133,6 +134,47 @@ chmod +x gradlew
 
 ---
 
+## iOS 版本构建
+
+### 方式一：本地 Xcode 构建（推荐）
+
+需要：
+- macOS 电脑
+- 安装 Xcode（从 Mac App Store 下载）
+- Node.js 18+
+
+#### 构建步骤
+```bash
+# 1. 安装依赖
+npm install
+
+# 2. 同步资源到 iOS 工程
+npx cap sync ios
+
+# 3. 用 Xcode 打开 iOS 工程
+npx cap open ios
+```
+
+然后在 Xcode 中：
+1. 左侧选中 `App` 项目
+2. 在 `Signing & Capabilities` 中选择你的 Apple ID Team（个人 Apple ID 可免费用于真机调试）
+3. 顶部选择你的 iPhone 或某个 iOS Simulator
+4. 点击 ▶️ 运行按钮
+
+#### 关于 iOS 分发
+- **自己用 / 给朋友用**：用 Xcode 连上 iPhone 直接运行即可（免费 Apple ID，7 天需重签）
+- **上架 App Store**：需要 Apple Developer 账号（$99/年），并在 App Store Connect 创建应用记录
+
+### 方式二：GitHub Actions 自动构建
+
+仓库里已经配置了 `Build iOS App` 工作流，使用 macOS runner 运行：
+1. 构建 iOS Simulator 版本（验证编译通过）
+2. 尝试打包 Archive（供后续分发使用）
+
+**注意**：GitHub Actions 无法直接生成可安装的 `.ipa` 文件给真机用，因为 iOS 真机分发必须配置 Apple 开发者证书和 Provisioning Profile。如果你需要自动分发到 TestFlight 或 App Store，建议结合 [fastlane](https://fastlane.tools) 使用。
+
+---
+
 ## 上架应用商店 checklist
 
 如果你要把 App 上传到华为应用市场、小米应用商店、Google Play 等，还需要准备以下内容：
@@ -169,7 +211,7 @@ chmod +x gradlew
 python3 generate_icons.py
 ```
 
-这会自动更新 `android/app/src/main/res/mipmap-*/` 下的所有图标文件。
+这会自动更新 Android 和 iOS 的应用图标。
 
 ---
 
