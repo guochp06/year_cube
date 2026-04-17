@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">YearCube</string>
+    <string name="title_activity_main">YearCube</string>
+    <string name="package_name">com.example.yearcube</string>
+    <string name="custom_url_scheme">com.example.yearcube</string>
+</resources>

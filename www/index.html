@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>人生格子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #e8f5e9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin: 40px 0 20px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #558b2f;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input[type="month"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            background: #f1f8e9;
+            color: #33691e;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            background: #4caf50;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:active {
+            background: #388e3c;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #4caf50;
+            border: 1px solid #4caf50;
+            margin-top: 20px;
+        }
+
+        .back-btn:active {
+            background: #e8f5e9;
+        }
+
+        .info {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .info .age {
+            font-size: 20px;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .info .months {
+            font-size: 13px;
+            color: #689f38;
+            margin-top: 4px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(30, 1fr);
+            gap: 3px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+            background: #f1f8e9;
+        }
+
+        .cell.filled {
+            background: var(--fill-color, #81c784);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #689f38;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: #f1f8e9;
+            border: 1px solid #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+    <div id="inputPage" class="page active">
+        <h1>你的人生格子</h1>
+        <p class="subtitle">假设人生75年，共900个月<br>每一个格子代表一个月</p>
+        <div class="input-group">
+            <label>请选择你的出生年月</label>
+            <input type="month" id="birthMonth">
+        </div>
+        <button onclick="showGrid()">查看我的人生格子</button>
+    </div>
+
+    <div id="gridPage" class="page">
+        <h1>你的人生格子</h1>
+        <div class="info">
+            <div class="age" id="ageText">--</div>
+            <div class="months" id="monthText">--</div>
+        </div>
+        <div class="grid-container" id="grid"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background:#f1f8e9;border-color:#c8e6c9;"></div>
+                <span>未经历</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#81c784;border-color:#66bb6a;"></div>
+                <span>已经历</span>
+            </div>
+        </div>
+        <button class="back-btn" onclick="goBack()">返回重新选择</button>
+    </div>
+
+    <script>
+        // 设置默认值为当前月份的前一个月（示例）
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('birthMonth').max = `${year}-${month}`;
+
+        function getFillColor(months) {
+            // 根据已过去月数计算颜色：越老越灰暗
+            // 0个月 -> 鲜绿色 #81c784
+            // 900个月 -> 深灰绿 #546e7a
+            const t = Math.min(months / 900, 1);
+            // 从鲜绿 (129, 199, 132) 插值到灰绿 (84, 110, 122)
+            const r = Math.round(129 + (84 - 129) * t);
+            const g = Math.round(199 + (110 - 199) * t);
+            const b = Math.round(132 + (122 - 132) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function showGrid() {
+            const input = document.getElementById('birthMonth').value;
+            if (!input) {
+                alert('请选择出生年月');
+                return;
+            }
+
+            const birth = new Date(input + '-01');
+            const current = new Date();
+            const currentYear = current.getFullYear();
+            const currentMonth = current.getMonth();
+
+            const birthYear = birth.getFullYear();
+            const birthMon = birth.getMonth();
+
+            // 计算已过去月数（不含当前未结束月份）
+            let passedMonths = (currentYear - birthYear) * 12 + (currentMonth - birthMon);
+            if (passedMonths < 0) passedMonths = 0;
+            if (passedMonths > 900) passedMonths = 900;
+
+            const ageYear = Math.floor(passedMonths / 12);
+            const ageMonth = passedMonths % 12;
+
+            document.getElementById('ageText').textContent = `${ageYear}岁${ageMonth}个月`;
+            document.getElementById('monthText').textContent = `已经历 ${passedMonths} 个月 / 剩余 ${900 - passedMonths} 个月`;
+
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            const fillColor = getFillColor(passedMonths);
+
+            for (let i = 0; i < 900; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell' + (i < passedMonths ? ' filled' : '');
+                if (i < passedMonths) {
+                    cell.style.setProperty('--fill-color', fillColor);
+                }
+                grid.appendChild(cell);
+            }
+
+            document.getElementById('inputPage').classList.remove('active');
+            document.getElementById('gridPage').classList.add('active');
+        }
+
+        function goBack() {
+            document.getElementById('gridPage').classList.remove('active');
+            document.getElementById('inputPage').classList.add('active');
+        }
+    </script>
+</body>
+</html>
