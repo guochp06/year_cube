@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+android/app/build/
+android/build/
+
+# Local env files
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keystore (DO NOT commit signing keys!)
+*.keystore
+*.jks
